@@ -44,7 +44,7 @@ export default function LandingPage() {
 
   const isGarmentReady = !!garmentUpload && !!garmentType;
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (isUpscale: boolean) => {
     // You can now easily access all inputs from the store here
     const inputs = useInputStore.getState();
     console.log("Generating image with inputs:", inputs);
@@ -64,6 +64,7 @@ export default function LandingPage() {
         ...inputs,
         modelUpload: modelBase64,
         garmentUpload: garmentBase64,
+        isUpscale,
       }),
     })
       .then((res) => res.json())
@@ -151,16 +152,29 @@ export default function LandingPage() {
               <ModelGenerator />
               <GarmentUpload />
             </div>
-            <div className="text-center mb-8">
+            <div className="flex justify-center items-center text-center mb-8 gap-2">
               <Button
+                className="w-44"
                 size="lg"
-                onClick={handleGenerate}
+                onClick={() => handleGenerate(false)}
                 disabled={!isModelReady || !isGarmentReady || isGenerating}
               >
                 {isGenerating && (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 )}
-                {isGenerating ? "Generating..." : "Generate Virtual Try-On"}
+                {isGenerating ? "Generating..." : "Generate"}
+              </Button>
+              <div>or</div>
+              <Button
+                className="w-44"
+                size="lg"
+                onClick={() => handleGenerate(true)}
+                disabled={!isModelReady || !isGarmentReady || isGenerating}
+              >
+                {isGenerating && (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                )}
+                {isGenerating ? "Generating..." : "Generate HD"}
               </Button>
             </div>
             <ResultSection

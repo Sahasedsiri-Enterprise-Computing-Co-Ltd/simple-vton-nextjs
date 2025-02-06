@@ -1,10 +1,12 @@
 // garment-upload.tsx
 "use client";
 
+import { useEffect, useState } from "react";
 import { useInputStore } from "@/store/use-input-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { RotateCcw } from "lucide-react";
 
 const garmentTypes = [
   { name: "Top", value: "tops" },
@@ -15,6 +17,19 @@ const garmentTypes = [
 export function GarmentUpload() {
   const { garmentUpload, setGarmentUpload, garmentType, setGarmentType } =
     useInputStore();
+  const [previewURL, setPreviewURL] = useState<string | null>(null);
+
+  // Generate a preview URL when garmentUpload changes
+  useEffect(() => {
+    if (garmentUpload) {
+      const url = URL.createObjectURL(garmentUpload);
+      setPreviewURL(url);
+      // Cleanup the object URL when the file changes or the component unmounts
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreviewURL(null);
+    }
+  }, [garmentUpload]);
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
@@ -26,9 +41,33 @@ export function GarmentUpload() {
           type="file"
           accept="image/*"
           className="mt-1"
-          onChange={(e) => setGarmentUpload(e.target.files?.[0] || null)}
+          onChange={(e) =>
+            setGarmentUpload(
+              e.target.files && e.target.files[0] ? e.target.files[0] : null
+            )
+          }
         />
       </div>
+
+      {/* Show image preview if available */}
+      {previewURL && (
+        <div className="relative mt-4">
+          <img
+            src={previewURL}
+            alt="Garment preview"
+            className="w-full max-h-60 object-contain rounded"
+          />
+          <Button
+            className="absolute top-2 right-2"
+            size="sm"
+            onClick={() => setGarmentUpload(null)}
+          >
+            <RotateCcw />
+            Clear Image
+          </Button>
+        </div>
+      )}
+
       <div className="mt-4">
         <Label className="block mb-2">Garment Type</Label>
         <div className="flex flex-wrap gap-2">

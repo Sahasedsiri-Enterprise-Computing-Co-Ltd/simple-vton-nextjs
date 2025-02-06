@@ -26,7 +26,7 @@ async function uploadBase64Image(
   const url = await fal.storage.upload(file);
 
   console.log("Uploaded Image URL:", url);
-  
+
   return url;
 }
 
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     imageSize,
     garmentUpload,
     garmentType,
+    isUpscale,
   } = await req.json();
 
   let modelUrl = "";
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
     modelUrl = result.data.images[0].url;
   }
 
-  console
+  console;
 
   const vtonResults = await Promise.all([
     fal.subscribe("fashn/tryon", {
@@ -94,7 +95,31 @@ export async function POST(req: NextRequest) {
     }),
   ]);
 
+  if (!isUpscale) {
+    return NextResponse.json({
+      output: [
+        vtonResults[0].data.images[0].url,
+        vtonResults[1].data.image.url,
+      ],
+    });
+  }
+
+  const upscale = async (url: string) => {
+    const result = await fal.subscribe("fal-ai/recraft-clarity-upscale", {
+      input: {
+        image_url: url,
+      },
+    });
+
+    return result.data.image.url;
+  };
+
+  const upscaleResults = await Promise.all([
+    upscale(vtonResults[0].data.images[0].url),
+    upscale(vtonResults[1].data.image.url),
+  ]);
+
   return NextResponse.json({
-    output: [vtonResults[0].data.images[0].url, vtonResults[1].data.image.url],
+    output: upscaleResults,
   });
 }

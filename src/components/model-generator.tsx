@@ -1,6 +1,7 @@
 // model-generator.tsx
 "use client";
 
+import { useEffect, useState } from "react";
 import { useInputStore, ModelType } from "@/store/use-input-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { RotateCcw } from "lucide-react";
 
 const attributes = {
   nationality: {
@@ -62,6 +64,20 @@ export function ModelGenerator() {
     setImageSize,
   } = useInputStore();
 
+  // State for the preview of the model image upload
+  const [modelPreviewURL, setModelPreviewURL] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (modelUpload) {
+      const url = URL.createObjectURL(modelUpload);
+      setModelPreviewURL(url);
+      // Cleanup the object URL on change/unmount
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setModelPreviewURL(null);
+    }
+  }, [modelUpload]);
+
   const ImageSizeButtons = () => (
     <div className="flex flex-wrap gap-2 mt-4">
       <Label className="w-full">Image Size</Label>
@@ -98,9 +114,32 @@ export function ModelGenerator() {
               type="file"
               accept="image/*"
               className="mt-1"
-              onChange={(e) => setModelUpload(e.target.files?.[0] || null)}
+              onChange={(e) =>
+                setModelUpload(
+                  e.target.files && e.target.files[0] ? e.target.files[0] : null
+                )
+              }
             />
           </div>
+
+          {/* Show image preview for the model upload if available */}
+          {modelPreviewURL && (
+            <div className="relative mt-4">
+              <img
+                src={modelPreviewURL}
+                alt="Model preview"
+                className="w-full max-h-60 object-contain rounded"
+              />
+              <Button
+                className="absolute top-2 right-2"
+                size="sm"
+                onClick={() => setModelUpload(null)}
+              >
+                <RotateCcw />
+                Clear Image
+              </Button>
+            </div>
+          )}
         </TabsContent>
         <TabsContent value="template">
           <div className="grid grid-cols-2 gap-4 mt-4">
