@@ -5,6 +5,8 @@ fal.config({
   credentials: process.env.FAL_API_KEY,
 });
 
+export const maxDuration = 600;
+
 async function uploadBase64Image(
   base64String: string,
   fileName: string,
