@@ -1,36 +1,80 @@
+// page.tsx
 "use client";
-
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ModelGenerator } from "@/components/model-generator";
 import { GarmentUpload } from "@/components/garment-upload";
 import { ResultSection } from "@/components/result-section";
+import { useInputStore } from "@/store/use-input-store";
+import { Loader2 } from "lucide-react";
+import { resizeImage } from "@/lib/image";
 
 export default function LandingPage() {
-  const [modelReady, setModelReady] = useState(false);
-  const [garmentReady, setGarmentReady] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
 
-  const handleModelReady = (ready: boolean) => setModelReady(ready);
-  const handleGarmentReady = (ready: boolean) => setGarmentReady(ready);
+  // Grab input values from the global store
+  const {
+    modelType,
+    modelUpload,
+    templateAttributes,
+    customPrompt,
+    imageSize,
+    garmentUpload,
+    garmentType,
+  } = useInputStore();
 
-  const handleGenerate = () => {
+  // Derive readiness based on the current input values
+  const isModelReady = useMemo(() => {
+    if (modelType === "upload") {
+      return !!modelUpload;
+    } else if (modelType === "template") {
+      // Check that each expected attribute is filled (you may adjust this logic as needed)
+      const allAttributesFilled =
+        Object.keys(templateAttributes).length > 0 &&
+        Object.keys(templateAttributes).every(
+          (attr) => !!templateAttributes[attr]
+        );
+      return allAttributesFilled && !!imageSize;
+    } else {
+      return !!customPrompt && !!imageSize;
+    }
+  }, [modelType, modelUpload, templateAttributes, customPrompt, imageSize]);
+
+  const isGarmentReady = !!garmentUpload && !!garmentType;
+
+  const handleGenerate = async () => {
+    // You can now easily access all inputs from the store here
+    const inputs = useInputStore.getState();
+    console.log("Generating image with inputs:", inputs);
+
     setIsGenerating(true);
     setGeneratedImages([]);
-    // Simulate generation process
-    setTimeout(() => {
-      setGeneratedImages([
-        "/placeholder.svg?height=400&width=300",
-        "/placeholder.svg?height=400&width=300",
-        "/placeholder.svg?height=400&width=300",
-        "/placeholder.svg?height=400&width=300",
-      ]);
-      setIsGenerating(false);
-    }, 3000);
+
+    const modelBase64 = await resizeImage(modelUpload);
+    const garmentBase64 = await resizeImage(garmentUpload);
+
+    fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...inputs,
+        modelUpload: modelBase64,
+        garmentUpload: garmentBase64,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setGeneratedImages(data.output);
+        setIsGenerating(false);
+      })
+      .catch((error) => {
+        console.error("Error generating images:", error);
+        setIsGenerating(false);
+      });
   };
 
   return (
@@ -104,15 +148,18 @@ export default function LandingPage() {
               Ready to Transform Your Shopping Experience?
             </h2>
             <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <ModelGenerator onReady={handleModelReady} />
-              <GarmentUpload onReady={handleGarmentReady} />
+              <ModelGenerator />
+              <GarmentUpload />
             </div>
             <div className="text-center mb-8">
               <Button
                 size="lg"
                 onClick={handleGenerate}
-                disabled={!modelReady || !garmentReady || isGenerating}
+                disabled={!isModelReady || !isGarmentReady || isGenerating}
               >
+                {isGenerating && (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                )}
                 {isGenerating ? "Generating..." : "Generate Virtual Try-On"}
               </Button>
             </div>
@@ -126,7 +173,7 @@ export default function LandingPage() {
 
       <footer className="bg-gray-800 text-white py-8">
         <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2023 VirtualFit. All rights reserved.</p>
+          <p>&copy; 2025 VirtualFit. All rights reserved.</p>
           <div className="mt-4">
             <Link href="#" className="text-gray-400 hover:text-white mx-2">
               Privacy Policy

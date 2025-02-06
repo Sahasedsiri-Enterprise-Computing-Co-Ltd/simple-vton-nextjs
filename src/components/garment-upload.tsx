@@ -1,19 +1,20 @@
+// garment-upload.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useInputStore } from "@/store/use-input-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
-export function GarmentUpload({
-  onReady,
-}: {
-  onReady: (ready: boolean) => void;
-}) {
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+const garmentTypes = [
+  { name: "Top", value: "tops" },
+  { name: "Bottom", value: "bottoms" },
+  { name: "One-Piece", value: "one-pieces" },
+];
 
-  useEffect(() => {
-    onReady(!!uploadedFile);
-  }, [uploadedFile, onReady]);
+export function GarmentUpload() {
+  const { garmentUpload, setGarmentUpload, garmentType, setGarmentType } =
+    useInputStore();
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
@@ -25,8 +26,23 @@ export function GarmentUpload({
           type="file"
           accept="image/*"
           className="mt-1"
-          onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
+          onChange={(e) => setGarmentUpload(e.target.files?.[0] || null)}
         />
+      </div>
+      <div className="mt-4">
+        <Label className="block mb-2">Garment Type</Label>
+        <div className="flex flex-wrap gap-2">
+          {garmentTypes.map((type) => (
+            <Button
+              key={type.value}
+              variant={garmentType === type.value ? "default" : "outline"}
+              onClick={() => setGarmentType(type.value)}
+              className="flex-1"
+            >
+              {type.name}
+            </Button>
+          ))}
+        </div>
       </div>
     </div>
   );

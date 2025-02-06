@@ -1,6 +1,7 @@
+// model-generator.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useInputStore, ModelType } from "@/store/use-input-store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,12 +16,30 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 const attributes = {
-  nationality: ["Japanese", "American", "English", "Chinese", "Indian"],
-  bodySize: ["Slim", "Average", "Athletic", "Chubby", "Plus-size"],
-  pose: ["Standing", "Sitting", "Walking", "Running", "Jumping"],
-  background: ["City", "Beach", "Mountains", "Studio", "Office"],
-  age: ["Child", "Teenager", "Young Adult", "Middle-aged", "Senior"],
-  hairColor: ["Black", "Brown", "Blonde", "Red", "Gray"],
+  nationality: {
+    label: "National",
+    options: ["Japanese", "American", "English", "Chinese", "Indian"],
+  },
+  bodySize: {
+    label: "Body Size",
+    options: ["Slim", "Average", "Athletic", "Chubby", "Plus-size"],
+  },
+  pose: {
+    label: "Pose",
+    options: ["Standing", "Sitting", "Walking", "Running", "Jumping"],
+  },
+  background: {
+    label: "Background",
+    options: ["City", "Beach", "Mountains", "Studio", "Office"],
+  },
+  age: {
+    label: "Age",
+    options: ["Child", "Teenager", "Young Adult", "Middle-aged", "Senior"],
+  },
+  gender: {
+    label: "Gender",
+    options: ["Man", "Woman", "Boy", "Girl"],
+  },
 };
 
 const imageSizes = [
@@ -29,42 +48,19 @@ const imageSizes = [
   { name: "Landscape", ratio: "4:3" },
 ];
 
-export function ModelGenerator({
-  onReady,
-}: {
-  onReady: (ready: boolean) => void;
-}) {
-  const [modelType, setModelType] = useState("upload");
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [templateAttributes, setTemplateAttributes] = useState<
-    Record<string, string>
-  >({});
-  const [customPrompt, setCustomPrompt] = useState("");
-  const [imageSize, setImageSize] = useState("");
-
-  useEffect(() => {
-    if (modelType === "upload") {
-      onReady(!!uploadedFile);
-    } else if (modelType === "template") {
-      const allAttributesFilled = Object.keys(attributes).every(
-        (attr) => !!templateAttributes[attr]
-      );
-      onReady(allAttributesFilled && !!imageSize);
-    } else {
-      onReady(!!customPrompt && !!imageSize);
-    }
-  }, [
+export function ModelGenerator() {
+  const {
     modelType,
-    uploadedFile,
+    setModelType,
+    modelUpload,
+    setModelUpload,
     templateAttributes,
+    setTemplateAttribute,
     customPrompt,
+    setCustomPrompt,
     imageSize,
-    onReady,
-  ]);
-
-  const handleAttributeChange = (attribute: string, value: string) => {
-    setTemplateAttributes((prev) => ({ ...prev, [attribute]: value }));
-  };
+    setImageSize,
+  } = useInputStore();
 
   const ImageSizeButtons = () => (
     <div className="flex flex-wrap gap-2 mt-4">
@@ -85,7 +81,10 @@ export function ModelGenerator({
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h3 className="text-xl font-semibold mb-4">1. Choose Your Model</h3>
-      <Tabs defaultValue="upload" onValueChange={setModelType}>
+      <Tabs
+        defaultValue="upload"
+        onValueChange={(value) => setModelType(value as ModelType)}
+      >
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="template">Template</TabsTrigger>
@@ -99,25 +98,23 @@ export function ModelGenerator({
               type="file"
               accept="image/*"
               className="mt-1"
-              onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
+              onChange={(e) => setModelUpload(e.target.files?.[0] || null)}
             />
           </div>
         </TabsContent>
         <TabsContent value="template">
           <div className="grid grid-cols-2 gap-4 mt-4">
-            {Object.entries(attributes).map(([attr, options]) => (
+            {Object.entries(attributes).map(([attr, value]) => (
               <div key={attr}>
-                <Label htmlFor={attr}>
-                  {attr.charAt(0).toUpperCase() + attr.slice(1)}
-                </Label>
+                <Label htmlFor={attr}>{value.label}</Label>
                 <Select
-                  onValueChange={(value) => handleAttributeChange(attr, value)}
+                  onValueChange={(value) => setTemplateAttribute(attr, value)}
                 >
                   <SelectTrigger id={attr}>
                     <SelectValue placeholder={`Select ${attr}`} />
                   </SelectTrigger>
                   <SelectContent>
-                    {options.map((option) => (
+                    {value.options.map((option) => (
                       <SelectItem key={option} value={option.toLowerCase()}>
                         {option}
                       </SelectItem>
