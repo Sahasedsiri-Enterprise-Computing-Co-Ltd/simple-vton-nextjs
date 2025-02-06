@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
+import Image from "next/image";
 
 const garmentTypes = [
   { name: "Top", value: "tops" },
@@ -52,7 +53,7 @@ export function GarmentUpload() {
       {/* Show image preview if available */}
       {previewURL && (
         <div className="relative mt-4">
-          <img
+          <Image
             src={previewURL}
             alt="Garment preview"
             className="w-full max-h-60 object-contain rounded"

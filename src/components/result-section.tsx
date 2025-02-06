@@ -37,7 +37,7 @@ export function ResultSection({
         ) : (
           // Placeholder when no images are generated
           <div className="col-span-full text-center text-gray-500">
-            No images generated yet. Click "Generate" to start.
+            No images generated yet. Click {`"Generate"`} to start.
           </div>
         )}
       </div>

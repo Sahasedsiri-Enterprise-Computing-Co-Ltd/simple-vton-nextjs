@@ -77,8 +77,6 @@ export async function POST(req: NextRequest) {
     modelUrl = result.data.images[0].url;
   }
 
-  console;
-
   const vtonResults = await Promise.all([
     fal.subscribe("fashn/tryon", {
       input: {
