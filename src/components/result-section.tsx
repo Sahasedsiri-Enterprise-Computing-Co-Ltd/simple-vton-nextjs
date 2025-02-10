@@ -1,18 +1,21 @@
 "use client";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import { PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle } from "lucide-react";
+import { useState } from "react";
 
 interface ResultSectionProps {
   isGenerating: boolean;
   generatedImages: string[];
-  setModelUpload: (url: string) => void;
+  setModelUpload: (url: string) => Promise<void>;
+  isModelUploading: boolean;
 }
 
 export function ResultSection({
   isGenerating,
   generatedImages,
   setModelUpload,
+  isModelUploading,
 }: ResultSectionProps) {
   return (
     <div className="mt-8">
@@ -42,8 +45,13 @@ export function ResultSection({
                 className="absolute top-2 right-2"
                 size="sm"
                 onClick={() => setModelUpload(src)}
+                disabled={isModelUploading}
               >
-                <PlusCircle />
+                {isModelUploading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <PlusCircle />
+                )}
                 Use Image
               </Button>
             </div>

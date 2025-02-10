@@ -14,6 +14,8 @@ export default function LandingPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
 
+  const [isModelUploading, setIsModelUploading] = useState<boolean>(false);
+
   // Grab input values from the global store
   const {
     modelType,
@@ -81,6 +83,8 @@ export default function LandingPage() {
 
   const handleModelUpload = async (url: string) => {
     try {
+      setIsModelUploading(true);
+
       const img = new Image();
       img.crossOrigin = "anonymous"; // Ensures CORS-compliant fetching
       img.src = url;
@@ -89,6 +93,7 @@ export default function LandingPage() {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) {
+          setIsModelUploading(false);
           console.error("Could not get canvas context");
           return;
         }
@@ -102,14 +107,17 @@ export default function LandingPage() {
             const file = new File([blob], "model.jpg", { type: "image/jpeg" });
             console.log("Setting model upload:", file);
             setModelUpload(file);
+            setIsModelUploading(false);
           }
         }, "image/jpeg");
       };
 
       img.onerror = (error) => {
+        setIsModelUploading(false);
         console.error("Error loading image:", error);
       };
     } catch (error) {
+      setIsModelUploading(false);
       console.error("Error processing image:", error);
     }
   };
@@ -217,6 +225,7 @@ export default function LandingPage() {
               isGenerating={isGenerating}
               generatedImages={generatedImages}
               setModelUpload={handleModelUpload}
+              isModelUploading={isModelUploading}
             />
           </div>
         </section>
