@@ -1,8 +1,7 @@
-"use client";
+"use client";;
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { Loader2, PlusCircle } from "lucide-react";
-import { useState } from "react";
 
 interface ResultSectionProps {
   isGenerating: boolean;
