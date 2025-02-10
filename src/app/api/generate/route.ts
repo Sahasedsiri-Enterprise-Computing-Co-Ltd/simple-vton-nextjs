@@ -56,14 +56,14 @@ export async function POST(req: NextRequest) {
     modelUrl = await uploadBase64Image(modelUpload, "model.jpg", "image/jpeg");
   } else {
     const mapImageSize = (size: string) => {
-      if (size === "4:3") return "portrait_4_3";
+      if (size === "3:4") return "portrait_4_3";
       if (size === "1:1") return "square";
-      if (size === "3:4") return "landscape_4_3";
+      if (size === "4:3") return "landscape_4_3";
       return "square";
     };
 
     const mapPromptFromTemplate = (template: Record<string, string>) => {
-      return `A photo realistic portrait of ${template.bodySize} ${template.age} ${template.nationality} ${template.gender} ${template.pose} in a ${template.background} background wearing a white t-shirt and a black pants.`;
+      return `A full-body realistic photo of a ${template.bodySize} body size, ${template.age}, ${template.nationality}, ${template.gender} ${template.pose} in a ${template.background} background wearing a white t-shirt and a black pants. Facing the camera. High Quality. Photographic. full-length portrait. Fashion model. Magazine.`;
     };
 
     const result = await fal.subscribe("fal-ai/flux/dev", {
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
         prompt:
           modelType === "template"
             ? mapPromptFromTemplate(templateAttributes)
-            : `A photo realistic portrait of a ${customPrompt}`,
+            : `A full-body realistic photo of a ${customPrompt}. Facing the camera. High Quality. Photographic. full-length portrait. Fashion model. Magazine.`,
         image_size: mapImageSize(imageSize),
       },
     });

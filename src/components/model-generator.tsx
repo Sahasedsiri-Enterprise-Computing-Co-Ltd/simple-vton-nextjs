@@ -37,11 +37,11 @@ const attributes = {
   },
   age: {
     label: "Age",
-    options: ["Child", "Teenager", "Young Adult", "Middle-aged", "Senior"],
+    options: ["Young", "Teenager", "Young Adult", "Middle-aged", "Senior"],
   },
   gender: {
     label: "Gender",
-    options: ["Man", "Woman", "Boy", "Girl"],
+    options: ["Man", "Woman"],
   },
 };
 
@@ -123,11 +123,14 @@ export function ModelGenerator() {
 
           {/* Show image preview for the model upload if available */}
           {modelPreviewURL && (
-            <div className="relative mt-4">
+            <div className="relative mt-4 w-full h-[300px]">
               <Image
                 src={modelPreviewURL}
                 alt="Model preview"
-                className="w-full max-h-60 object-contain rounded"
+                fill
+                style={{
+                  objectFit: "contain",
+                }}
               />
               <Button
                 className="absolute top-2 right-2"

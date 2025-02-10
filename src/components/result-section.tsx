@@ -1,14 +1,18 @@
 "use client";
 import Image from "next/image";
+import { Button } from "./ui/button";
+import { PlusCircle } from "lucide-react";
 
 interface ResultSectionProps {
   isGenerating: boolean;
   generatedImages: string[];
+  setModelUpload: (url: string) => void;
 }
 
 export function ResultSection({
   isGenerating,
   generatedImages,
+  setModelUpload,
 }: ResultSectionProps) {
   return (
     <div className="mt-8">
@@ -30,8 +34,18 @@ export function ResultSection({
                 src={src || "/placeholder.svg"}
                 alt={`Generated image ${index + 1}`}
                 fill
-                className="object-cover rounded-lg"
+                style={{
+                  objectFit: "contain",
+                }}
               />
+              <Button
+                className="absolute top-2 right-2"
+                size="sm"
+                onClick={() => setModelUpload(src)}
+              >
+                <PlusCircle />
+                Use Image
+              </Button>
             </div>
           ))
         ) : (

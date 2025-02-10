@@ -23,6 +23,7 @@ export default function LandingPage() {
     imageSize,
     garmentUpload,
     garmentType,
+    setModelUpload,
   } = useInputStore();
 
   // Derive readiness based on the current input values
@@ -76,6 +77,41 @@ export default function LandingPage() {
         console.error("Error generating images:", error);
         setIsGenerating(false);
       });
+  };
+
+  const handleModelUpload = async (url: string) => {
+    try {
+      const img = new Image();
+      img.crossOrigin = "anonymous"; // Ensures CORS-compliant fetching
+      img.src = url;
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          console.error("Could not get canvas context");
+          return;
+        }
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const file = new File([blob], "model.jpg", { type: "image/jpeg" });
+            console.log("Setting model upload:", file);
+            setModelUpload(file);
+          }
+        }, "image/jpeg");
+      };
+
+      img.onerror = (error) => {
+        console.error("Error loading image:", error);
+      };
+    } catch (error) {
+      console.error("Error processing image:", error);
+    }
   };
 
   return (
@@ -180,6 +216,7 @@ export default function LandingPage() {
             <ResultSection
               isGenerating={isGenerating}
               generatedImages={generatedImages}
+              setModelUpload={handleModelUpload}
             />
           </div>
         </section>

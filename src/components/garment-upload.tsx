@@ -52,11 +52,14 @@ export function GarmentUpload() {
 
       {/* Show image preview if available */}
       {previewURL && (
-        <div className="relative mt-4">
+        <div className="relative mt-4 w-full h-[300px]">
           <Image
             src={previewURL}
             alt="Garment preview"
-            className="w-full max-h-60 object-contain rounded"
+            fill
+            style={{
+              objectFit: "contain",
+            }}
           />
           <Button
             className="absolute top-2 right-2"
