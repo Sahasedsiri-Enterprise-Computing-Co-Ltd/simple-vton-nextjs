@@ -13,6 +13,8 @@ export interface InputStore {
   // Garment Upload inputs
   garmentUpload: File | null;
   garmentType: string;
+  // Branding inputs
+  brandingUpload: File | null;
 
   // Setter actions with explicit types
   setModelType: (type: ModelType) => void;
@@ -22,6 +24,7 @@ export interface InputStore {
   setImageSize: (size: string) => void;
   setGarmentUpload: (file: File | null) => void;
   setGarmentType: (type: string) => void;
+  setBrandingUpload: (file: File | null) => void;
   reset: () => void;
 }
 
@@ -34,6 +37,7 @@ export const useInputStore = create<InputStore>((set) => ({
   imageSize: "",
   garmentUpload: null,
   garmentType: "",
+  brandingUpload: null,
   // Setter actions
   setModelType: (type: ModelType): void => set({ modelType: type }),
   setModelUpload: (file: File | null): void => set({ modelUpload: file }),
@@ -45,6 +49,7 @@ export const useInputStore = create<InputStore>((set) => ({
   setImageSize: (size: string): void => set({ imageSize: size }),
   setGarmentUpload: (file: File | null): void => set({ garmentUpload: file }),
   setGarmentType: (type: string): void => set({ garmentType: type }),
+  setBrandingUpload: (file: File | null): void => set({ brandingUpload: file }),
   reset: (): void =>
     set({
       modelType: "upload",
@@ -54,5 +59,6 @@ export const useInputStore = create<InputStore>((set) => ({
       imageSize: "",
       garmentUpload: null,
       garmentType: "",
+      brandingUpload: null,
     }),
 }));

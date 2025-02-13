@@ -9,6 +9,7 @@ import { ResultSection } from "@/components/result-section";
 import { useInputStore } from "@/store/use-input-store";
 import { Loader2 } from "lucide-react";
 import { resizeImage } from "@/lib/image";
+import { BrandingUpload } from "@/components/branding-upload";
 
 export default function LandingPage() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -192,9 +193,10 @@ export default function LandingPage() {
             <h2 className="text-3xl font-bold mb-10 text-center">
               Ready to Transform Your Shopping Experience?
             </h2>
-            <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <div className="grid md:grid-cols-3 gap-8 mb-8">
               <ModelGenerator />
               <GarmentUpload />
+              <BrandingUpload />
             </div>
             <div className="flex justify-center items-center text-center mb-8 gap-2">
               <Button
