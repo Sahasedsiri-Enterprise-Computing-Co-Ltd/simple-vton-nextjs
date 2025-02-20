@@ -48,7 +48,10 @@ export default function LandingPage() {
 
   const isGarmentReady = !!garmentUpload && !!garmentType;
 
-  const handleGenerate = async (isUpscale: boolean) => {
+  const handleGenerate = async (
+    isUpscale: boolean,
+    api: string = "/api/generate"
+  ) => {
     // You can now easily access all inputs from the store here
     const inputs = useInputStore.getState();
     console.log("Generating image with inputs:", inputs);
@@ -59,7 +62,7 @@ export default function LandingPage() {
     const modelBase64 = await resizeImage(modelUpload);
     const garmentBase64 = await resizeImage(garmentUpload);
 
-    fetch("/api/generate", {
+    fetch(api, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -202,7 +205,7 @@ export default function LandingPage() {
               <Button
                 className="w-44"
                 size="lg"
-                onClick={() => handleGenerate(false)}
+                onClick={() => handleGenerate(false, "/api/generate")}
                 disabled={!isModelReady || !isGarmentReady || isGenerating}
               >
                 {isGenerating && (
@@ -214,13 +217,38 @@ export default function LandingPage() {
               <Button
                 className="w-44"
                 size="lg"
-                onClick={() => handleGenerate(true)}
+                onClick={() => handleGenerate(true, "/api/generate")}
                 disabled={!isModelReady || !isGarmentReady || isGenerating}
               >
                 {isGenerating && (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 )}
                 {isGenerating ? "Generating..." : "Generate HD"}
+              </Button>
+            </div>
+            <div className="flex justify-center items-center text-center mb-8 gap-2">
+              <Button
+                className="w-44"
+                size="lg"
+                onClick={() => handleGenerate(false, "/api/generate2")}
+                disabled={!isModelReady || !isGarmentReady || isGenerating}
+              >
+                {isGenerating && (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                )}
+                {isGenerating ? "Generating..." : "Generate 2"}
+              </Button>
+              <div>or</div>
+              <Button
+                className="w-44"
+                size="lg"
+                onClick={() => handleGenerate(true, "/api/generate2")}
+                disabled={!isModelReady || !isGarmentReady || isGenerating}
+              >
+                {isGenerating && (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                )}
+                {isGenerating ? "Generating..." : "Generate 2 HD"}
               </Button>
             </div>
             <ResultSection
