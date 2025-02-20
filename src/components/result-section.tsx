@@ -1,9 +1,10 @@
 "use client";
 import NextImage from "next/image";
 import { Button } from "./ui/button";
-import { Loader2, PlusCircle } from "lucide-react";
+import { Download, Loader2, PlusCircle } from "lucide-react";
 import { useInputStore } from "@/store/use-input-store";
 import { useEffect, useState } from "react";
+import { saveAs } from "file-saver";
 
 interface ResultSectionProps {
   isGenerating: boolean;
@@ -113,21 +114,35 @@ export function ResultSection({
                 style={{
                   objectFit: "contain",
                 }}
-                unoptimized
               />
-              <Button
-                className="absolute top-2 right-2"
-                size="sm"
-                onClick={() => setModelUpload(src)}
-                disabled={isModelUploading}
-              >
-                {isModelUploading ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <PlusCircle />
-                )}
-                Use Image
-              </Button>
+              <div className="absolute flex gap-2 top-2 right-2">
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    saveAs(src, `generated-image-${index + 1}.png`)
+                  }
+                  disabled={isModelUploading}
+                >
+                  {isModelUploading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Download />
+                  )}
+                  Download
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setModelUpload(src)}
+                  disabled={isModelUploading}
+                >
+                  {isModelUploading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <PlusCircle />
+                  )}
+                  Use Image
+                </Button>
+              </div>
             </div>
           ))
         ) : (
