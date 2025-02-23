@@ -1,7 +1,12 @@
 "use client";
 import NextImage from "next/image";
 import { Button } from "./ui/button";
-import { Download, Loader2, PlusCircle } from "lucide-react";
+import {
+  Download,
+  Image as ImageIcon,
+  Loader2,
+  PlusCircle,
+} from "lucide-react";
 import { useInputStore } from "@/store/use-input-store";
 import { useEffect, useState } from "react";
 import { saveAs } from "file-saver";
@@ -21,6 +26,8 @@ export function ResultSection({
 }: ResultSectionProps) {
   const { brandingUpload } = useInputStore();
   const [resultImages, setResultImages] = useState<string[]>(generatedImages);
+
+  const [isRembg, setIsRembg] = useState<boolean>(false);
 
   // Composites the base image with a watermark and returns a data URL.
   async function compositeImageWithWatermark(
@@ -91,6 +98,92 @@ export function ResultSection({
     })();
   }, [generatedImages, brandingUpload]);
 
+  // Helper function to composite a foreground image over a background image.
+  async function compositeWithBackground(
+    foregroundUrl: string,
+    backgroundUrl: string
+  ): Promise<string> {
+    // Load background image
+    const bgImg = new Image();
+    bgImg.crossOrigin = "anonymous";
+    bgImg.src = backgroundUrl;
+    await new Promise<void>((resolve, reject) => {
+      bgImg.onload = () => resolve();
+      bgImg.onerror = reject;
+    });
+
+    // Load removed background (foreground) image
+    const fgImg = new Image();
+    fgImg.crossOrigin = "anonymous";
+    fgImg.src = foregroundUrl;
+    await new Promise<void>((resolve, reject) => {
+      fgImg.onload = () => resolve();
+      fgImg.onerror = reject;
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = bgImg.width;
+    canvas.height = bgImg.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return "";
+
+    // Draw the background image
+    ctx.drawImage(bgImg, 0, 0);
+
+    // Calculate scaling so that the foreground fits within the background while preserving aspect ratio
+    const scale = Math.min(
+      bgImg.width / fgImg.width,
+      bgImg.height / fgImg.height
+    );
+    const fgWidth = fgImg.width * scale;
+    const fgHeight = fgImg.height * scale;
+    const offsetX = (bgImg.width - fgWidth) / 2;
+    const offsetY = (bgImg.height - fgHeight) / 2;
+
+    // Draw the foreground image on top, centered
+    ctx.drawImage(fgImg, offsetX, offsetY, fgWidth, fgHeight);
+
+    return canvas.toDataURL("image/png");
+  }
+
+  // Updated handleRembg function to composite the removed background result with two local backgrounds
+  const handleRembg = async (image: string) => {
+    setIsRembg(true);
+    try {
+      const res = await fetch("/api/removebg", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ imageUrl: image }),
+      });
+      const data = await res.json();
+      const removedBgUrl = data.result;
+
+      // Composite with local backgrounds
+      const composite1 = await compositeWithBackground(
+        removedBgUrl,
+        "/bg1.png"
+      );
+      const composite2 = await compositeWithBackground(
+        removedBgUrl,
+        "/bg2.png"
+      );
+
+      // You can now use these composite images as needed.
+      // For example, update state to display one or both:
+      setResultImages([...resultImages, composite1, composite2]);
+      // Optionally, store composite2 or display both.
+
+      console.log("Composite with bg1:", composite1);
+      console.log("Composite with bg2:", composite2);
+    } catch (error) {
+      console.error("Error processing remove background:", error);
+    } finally {
+      setIsRembg(false);
+    }
+  };
+
   return (
     <div className="mt-8">
       <h2 className="text-3xl font-bold mb-6 text-center">Results</h2>
@@ -141,6 +234,18 @@ export function ResultSection({
                     <PlusCircle />
                   )}
                   Use Image
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleRembg(src)}
+                  disabled={isModelUploading || isRembg}
+                >
+                  {isModelUploading || isRembg ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <ImageIcon />
+                  )}
+                  Change Background
                 </Button>
               </div>
             </div>
