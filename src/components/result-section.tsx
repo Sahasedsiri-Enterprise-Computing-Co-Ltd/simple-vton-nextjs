@@ -1,7 +1,12 @@
 "use client";
 import NextImage from "next/image";
 import { Button } from "./ui/button";
-import { Download, Image as ImageIcon, Loader2, PlusCircle } from "lucide-react";
+import {
+  Download,
+  Image as ImageIcon,
+  Loader2,
+  PlusCircle,
+} from "lucide-react";
 import { useInputStore } from "@/store/use-input-store";
 import { useEffect, useState } from "react";
 import { saveAs } from "file-saver";
@@ -172,6 +177,37 @@ export function ResultSection({
     }
   };
 
+  // Helper: Convert any image (URL or base64) to a PNG blob via an offscreen canvas
+  const convertToPng = (src: string): Promise<Blob> =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      // Enable CORS if needed
+      img.crossOrigin = "Anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext("2d")?.drawImage(img, 0, 0);
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("Conversion failed."));
+        }, "image/png");
+      };
+      img.onerror = (err) => reject(err);
+      img.src = src;
+    });
+
+  // Usage in your button click handler:
+  const downloadImageAsPng = async (src: string) => {
+    const random = Math.floor(Math.random() * 1000000);
+    try {
+      const pngBlob: Blob = await convertToPng(src);
+      saveAs(pngBlob, `${random}.png`);
+    } catch (error) {
+      console.error("Error converting image:", error);
+    }
+  };
+
   return (
     <div className="mt-8">
       <h2 className="text-3xl font-bold mb-6 text-center">Results</h2>
@@ -199,10 +235,7 @@ export function ResultSection({
               <div className="absolute flex gap-2 top-2 right-2">
                 <Button
                   size="sm"
-                  onClick={() => {
-                    const random = Math.floor(Math.random() * 1000000);
-                    saveAs(src, `${random}.png`);
-                  }}
+                  onClick={() => downloadImageAsPng(src)}
                   disabled={isModelUploading}
                 >
                   {isModelUploading ? (
