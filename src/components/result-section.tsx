@@ -2,6 +2,7 @@
 import NextImage from "next/image";
 import { Button } from "./ui/button";
 import {
+  AppWindow,
   Download,
   Image as ImageIcon,
   Loader2,
@@ -163,20 +164,13 @@ export function ResultSection({
       // Composite with local backgrounds
       const composite1 = await compositeWithBackground(
         removedBgUrl,
-        "/bg1.png"
-      );
-      const composite2 = await compositeWithBackground(
-        removedBgUrl,
-        "/bg2.png"
+        "/bg3.png"
       );
 
       // You can now use these composite images as needed.
       // For example, update state to display one or both:
-      setResultImages([...resultImages, composite1, composite2]);
+      setResultImages([...resultImages, composite1]);
       // Optionally, store composite2 or display both.
-
-      console.log("Composite with bg1:", composite1);
-      console.log("Composite with bg2:", composite2);
     } catch (error) {
       console.error("Error processing remove background:", error);
     } finally {
@@ -211,9 +205,10 @@ export function ResultSection({
               <div className="absolute flex gap-2 top-2 right-2">
                 <Button
                   size="sm"
-                  onClick={() =>
-                    saveAs(src, `generated-image-${index + 1}.png`)
-                  }
+                  onClick={() => {
+                    const random = Math.floor(Math.random() * 1000000);
+                    saveAs(src, `${random}.png`);
+                  }}
                   disabled={isModelUploading}
                 >
                   {isModelUploading ? (
