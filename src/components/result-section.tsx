@@ -101,7 +101,9 @@ export function ResultSection({
   // Helper function to composite a foreground image over a background image.
   async function compositeWithBackground(
     foregroundUrl: string,
-    backgroundUrl: string
+    backgroundUrl: string,
+    topPadding: number = 100,
+    bottomPadding: number = 100
   ): Promise<string> {
     // Load background image
     const bgImg = new Image();
@@ -112,7 +114,7 @@ export function ResultSection({
       bgImg.onerror = reject;
     });
 
-    // Load removed background (foreground) image
+    // Load foreground image
     const fgImg = new Image();
     fgImg.crossOrigin = "anonymous";
     fgImg.src = foregroundUrl;
@@ -130,17 +132,21 @@ export function ResultSection({
     // Draw the background image
     ctx.drawImage(bgImg, 0, 0);
 
-    // Calculate scaling so that the foreground fits within the background while preserving aspect ratio
+    // Define the safe area based on adjustable top and bottom padding
+    const safeAreaY = topPadding;
+    const safeAreaHeight = bgImg.height - topPadding - bottomPadding;
+
+    // Scale the foreground to fit within the safe area and the full background width
     const scale = Math.min(
       bgImg.width / fgImg.width,
-      bgImg.height / fgImg.height
+      safeAreaHeight / fgImg.height
     );
     const fgWidth = fgImg.width * scale;
     const fgHeight = fgImg.height * scale;
     const offsetX = (bgImg.width - fgWidth) / 2;
-    const offsetY = (bgImg.height - fgHeight) / 2;
+    const offsetY = safeAreaY + (safeAreaHeight - fgHeight) / 2;
 
-    // Draw the foreground image on top, centered
+    // Draw the foreground image in the safe area
     ctx.drawImage(fgImg, offsetX, offsetY, fgWidth, fgHeight);
 
     return canvas.toDataURL("image/png");
@@ -163,7 +169,9 @@ export function ResultSection({
       // Composite with local backgrounds
       const composite1 = await compositeWithBackground(
         removedBgUrl,
-        "/bg3.png"
+        "/bg3.png",
+        150,
+        150
       );
 
       // You can now use these composite images as needed.
