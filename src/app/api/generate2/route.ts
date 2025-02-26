@@ -73,6 +73,7 @@ export async function POST(req: NextRequest) {
             ? mapPromptFromTemplate(templateAttributes)
             : `A full-body realistic photo of a ${customPrompt}. Facing the camera. High Quality. Photographic. full-length portrait. Fashion model. Magazine.`,
         image_size: mapImageSize(imageSize),
+        enable_safety_checker: false,
       },
     });
 
