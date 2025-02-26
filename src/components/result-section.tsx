@@ -1,13 +1,7 @@
 "use client";
 import NextImage from "next/image";
 import { Button } from "./ui/button";
-import {
-  AppWindow,
-  Download,
-  Image as ImageIcon,
-  Loader2,
-  PlusCircle,
-} from "lucide-react";
+import { Download, Image as ImageIcon, Loader2, PlusCircle } from "lucide-react";
 import { useInputStore } from "@/store/use-input-store";
 import { useEffect, useState } from "react";
 import { saveAs } from "file-saver";
