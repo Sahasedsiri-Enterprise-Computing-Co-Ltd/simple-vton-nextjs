@@ -8,6 +8,12 @@ const nextConfig = {
         port: "", // leave empty if no specific port is required
         pathname: "/**", // allow all paths
       },
+      {
+        protocol: "https",
+        hostname: "replicate.delivery",
+        port: "", // leave empty if no specific port is required
+        pathname: "/**", // allow all paths
+      },
     ],
   },
 };

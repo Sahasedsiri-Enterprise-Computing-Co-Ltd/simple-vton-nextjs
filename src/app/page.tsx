@@ -251,6 +251,31 @@ export default function LandingPage() {
                 {isGenerating ? "Generating..." : "Generate 2 HD"}
               </Button>
             </div>
+            <div className="flex justify-center items-center text-center mb-8 gap-2">
+              <Button
+                className="w-44"
+                size="lg"
+                onClick={() => handleGenerate(false, "/api/generate3")}
+                disabled={!isModelReady || !isGarmentReady || isGenerating}
+              >
+                {isGenerating && (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                )}
+                {isGenerating ? "Generating..." : "Generate 3"}
+              </Button>
+              <div>or</div>
+              <Button
+                className="w-44"
+                size="lg"
+                onClick={() => handleGenerate(true, "/api/generate3")}
+                disabled={!isModelReady || !isGarmentReady || isGenerating}
+              >
+                {isGenerating && (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                )}
+                {isGenerating ? "Generating..." : "Generate 3 HD"}
+              </Button>
+            </div>
             <ResultSection
               isGenerating={isGenerating}
               generatedImages={generatedImages}
